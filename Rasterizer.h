@@ -4,8 +4,8 @@
 #include "PointCloud.h"
 
 namespace EFTDEM {
-	class Sorter {
+	class Rasterizer {
 	public:
-		static void sortPointCloud(PointCloud &pointCloud, sycl::queue &queue);
+		static void rasterizePointCloud(PointCloud &pointCloud, sycl::queue &queue);
 	};
 } // EFTDEM

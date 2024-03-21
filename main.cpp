@@ -4,7 +4,7 @@
 #include "MobileMappingReader.h"
 #include "Sorter.h"
 
-int main(const int argc, const char* argv[]) {
+int main(const int argc, const char *argv[]) {
 	if (argc < 2) {
 		std::cerr << "Provide a path to a point cloud file!\n";
 		return 1;
@@ -17,18 +17,20 @@ int main(const int argc, const char* argv[]) {
 
 	EFTDEM::MobileMappingReader::readPointsFromFile(pointCloud, argv[1], true);
 
-	sycl::queue queue{sycl::gpu_selector_v, [](const sycl::exception_list& exceptions) {
-		for (auto& exception : exceptions) {
-			try {
-				std::rethrow_exception(exception);
-			} catch (sycl::exception& e) {
-				std::cerr << e.what();
+	sycl::queue queue{
+		sycl::gpu_selector_v, [](const sycl::exception_list &exceptions) {
+			for (auto &exception: exceptions) {
+				try {
+					std::rethrow_exception(exception);
+				} catch (sycl::exception &e) {
+					std::cerr << e.what();
+				}
 			}
-		}
 
-		std::terminate();
-	}};
-	std:: cout << "Selected " << queue.get_device().get_info<sycl::info::device::name>() << " as the SYCL device.\n";
+			std::terminate();
+		}
+	};
+	std::cout << "Selected " << queue.get_device().get_info<sycl::info::device::name>() << " as the SYCL device.\n";
 
 	EFTDEM::Sorter::sortPointCloud(pointCloud, queue);
 

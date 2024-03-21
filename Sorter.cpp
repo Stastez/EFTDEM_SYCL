@@ -1,13 +1,10 @@
-
 #include "Sorter.h"
 
 namespace EFTDEM {
 	void Sorter::sortPointCloud(PointCloud &pointCloud, sycl::queue &queue) {
 		std::cout << "Sorting point cloud into a " << pointCloud.width << "x" << pointCloud.height << " grid...\n";
 
-		pointCloud.gridCellIndices = std::vector<std::size_t>(pointCloud.points.size(), 0);
-
-		{
+		pointCloud.gridCellIndices = std::vector<std::size_t>(pointCloud.points.size(), 0); {
 			sycl::buffer pointsBuffer{pointCloud.points};
 			sycl::buffer indicesBuffer{pointCloud.gridCellIndices};
 
@@ -37,5 +34,4 @@ namespace EFTDEM {
 		constexpr std::size_t maximumLines = 25;
 		for (std::size_t i = 0; i < pointCloud.points.size(); i += pointCloud.points.size() / maximumLines) std::cout << "\t" << i << ": " << pointCloud.gridCellIndices[i] << "\n";
 	}
-
 } // EFTDEM

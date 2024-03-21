@@ -1,4 +1,3 @@
-
 #pragma once
 #include <limits>
 #include <vector>
@@ -12,9 +11,10 @@ namespace EFTDEM {
 		Point<double> mins{std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity(), std::numeric_limits<double>::infinity()};
 		Point<double> maxs{-std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity()};
 
-		std::vector<Point<double>> points;
+		std::vector<Point<double> > points;
 		std::vector<std::size_t> gridCellIndices;
 
-		PointCloud(const unsigned long width, const unsigned long height) : width(width), height(height) {}
+		PointCloud(const unsigned long width, const unsigned long height) : width(width), height(height) {
+		}
 	};
 }

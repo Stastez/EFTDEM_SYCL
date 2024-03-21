@@ -51,11 +51,10 @@ namespace EFTDEM {
 		std::cout << "Points:\n";
 		constexpr std::size_t maximumLines = 25;
 		for (std::size_t i = 0; i < pointCloud.points.size(); i += pointCloud.points.size() / maximumLines) {
-			const auto& point = pointCloud.points[i];
+			const auto &point = pointCloud.points[i];
 			std::cout << "\t" << i << ": {" << point.x << ", " << point.y << ", " << point.z << "}\n";
 
 			if (i == maximumLines - 1) std::cout << "\t[...]\n\n";
 		}
 	}
-
 } // EFTDEM

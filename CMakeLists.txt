@@ -16,6 +16,8 @@ add_executable(${TARGET_NAME} main.cpp
         PointCloud.h
         Point.h
         Point.inl
+        Rasterizer.cpp
+        Rasterizer.h
 )
 
 if(MSVC)
