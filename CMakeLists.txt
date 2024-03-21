@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(AdaptiveCpp CONFIG REQUIRED)
 
+add_compile_definitions("DEBUG=$<CONFIG:Debug>")
 add_executable(${TARGET_NAME} main.cpp
         MobileMappingReader.cpp
         MobileMappingReader.h
@@ -18,13 +19,14 @@ add_executable(${TARGET_NAME} main.cpp
         Point.inl
         Rasterizer.cpp
         Rasterizer.h
+        SYCLState.h
 )
 
-if(MSVC)
+if (MSVC)
     target_compile_options(${TARGET_NAME} PRIVATE /W4)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -favor:AMD64")
-else()
+else ()
     target_compile_options(${TARGET_NAME} PRIVATE -Wall -Wextra -Wpedantic)
-endif()
+endif ()
 
 add_sycl_to_target(TARGET ${TARGET_NAME})

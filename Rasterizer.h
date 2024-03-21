@@ -1,11 +1,10 @@
 #pragma once
-#include <sycl/sycl.hpp>
-
 #include "PointCloud.h"
+#include "SYCLState.h"
 
 namespace EFTDEM {
 	class Rasterizer {
 	public:
-		static void rasterizePointCloud(PointCloud &pointCloud, sycl::queue &queue);
+		static void rasterizePointCloud(PointCloud &pointCloud, SYCLState syclState);
 	};
 } // EFTDEM

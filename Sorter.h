@@ -1,11 +1,10 @@
 #pragma once
-#include <sycl/sycl.hpp>
-
 #include "PointCloud.h"
+#include "SYCLState.h"
 
 namespace EFTDEM {
 	class Sorter {
 	public:
-		static void sortPointCloud(PointCloud &pointCloud, sycl::queue &queue);
+		static void sortPointCloud(PointCloud &pointCloud, SYCLState &syclState);
 	};
 } // EFTDEM
