@@ -5,7 +5,7 @@
 #include <iostream>
 
 namespace EFTDEM {
-	void MobileMappingReader::readPointsFromFile(PointCloud &pointCloud, const std::string &path) {
+	void MobileMappingReader::readPointsFromFile(PointCloud &pointCloud, const std::string &path, const int debug) {
 		std::cout << "Reading point cloud at " << path << "...\n";
 
 		std::ifstream file{path, std::ios::in};
@@ -39,24 +39,21 @@ namespace EFTDEM {
 			}
 		}
 
-#if (EFTDEM_DEBUG)
-			MobileMappingReader::printOutput(pointCloud);
-#endif
+		if (debug) printOutput(pointCloud, debug);
 	}
 
-	void MobileMappingReader::printOutput(const PointCloud &pointCloud) {
+	void MobileMappingReader::printOutput(const PointCloud &pointCloud, const int approximateNumLines) {
 		std::cout << "\nLimits:\n";
-		std::cout << "\tx: " << "{" << pointCloud.mins.x << ", " << pointCloud.maxs.y << "}\n";
-		std::cout << "\ty: " << "{" << pointCloud.mins.x << ", " << pointCloud.maxs.y << "}\n";
-		std::cout << "\tz: " << "{" << pointCloud.mins.x << ", " << pointCloud.maxs.y << "}\n";
+		std::cout << "\tx: " << "{" << pointCloud.mins.x << ", " << pointCloud.maxs.x << "}\n";
+		std::cout << "\ty: " << "{" << pointCloud.mins.y << ", " << pointCloud.maxs.y << "}\n";
+		std::cout << "\tz: " << "{" << pointCloud.mins.z << ", " << pointCloud.maxs.z << "}\n";
 
 		std::cout << "Points:\n";
-		constexpr std::size_t maximumLines = 25;
-		for (std::size_t i = 0; i < pointCloud.points.size(); i += pointCloud.points.size() / maximumLines) {
+		for (std::size_t i = 0; i < pointCloud.points.size(); i += pointCloud.points.size() / approximateNumLines) {
 			const auto &point = pointCloud.points[i];
 			std::cout << "\t" << i << ": {" << point.x << ", " << point.y << ", " << point.z << "}\n";
-
-			if (i == maximumLines - 1) std::cout << "\t[...]\n\n";
 		}
+
+		std::cout << "\t[...]\n\n";
 	}
 } // EFTDEM

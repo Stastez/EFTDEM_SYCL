@@ -1,12 +1,12 @@
 #include "Sorter.h"
 
 namespace EFTDEM {
-	void Sorter::sortPointCloud(PointCloud &pointCloud, SYCLState &syclState) {
+	void Sorter::sortPointCloud(PointCloud &pointCloud, SYCLState &syclState, const int debug) {
 		std::cout << "Sorting point cloud into a " << pointCloud.width << "x" << pointCloud.height << " grid...\n";
 
-		const auto [width, height, mins, maxs, ignore1, ignore2] = pointCloud;
+		const auto [width, height, mins, maxs, ignore1, ignore2, ignore3] = pointCloud;
 
-		auto sorting = syclState.queue.submit([&](sycl::handler &handler) {
+		syclState.queue.submit([&](sycl::handler &handler) {
 			const sycl::accessor points{syclState.pointsBuffer, handler, sycl::read_only};
 			const sycl::accessor indices{syclState.gridCellIndicesBuffer, handler, sycl::write_only};
 
@@ -25,13 +25,14 @@ namespace EFTDEM {
 			});
 		});
 
-#if(EFTDEM_DEBUG)
-				// TODO: use host_task when available with AdaptiveCpp, temporary solution: call destructor and trigger copy back
-				syclState.gridCellIndicesBuffer = {pointCloud.gridCellIndices};
+		if (debug) printOutput(pointCloud, syclState, debug);
+	}
 
-				std::cout << "\nIndices:\n";
-				constexpr std::size_t maximumLines = 25;
-				for (std::size_t i = 0; i < pointCloud.points.size(); i += pointCloud.points.size() / maximumLines) std::cout << "\t" << i << ": " << pointCloud.gridCellIndices[i] << "\n";
-#endif
+	void Sorter::printOutput(const PointCloud &pointCloud, SYCLState &syclState, const int approximateNumLines) {
+		const sycl::host_accessor indices{syclState.gridCellIndicesBuffer};
+
+		std::cout << "\nIndices:\n";
+		for (std::size_t i = 0; i < pointCloud.points.size(); i += pointCloud.points.size() / approximateNumLines) std::cout << "\t" << i << ": " << indices[i] << "\n";
+		std::cout << "\t[...]\n\n";
 	}
 } // EFTDEM

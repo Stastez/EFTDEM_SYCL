@@ -13,6 +13,7 @@ namespace EFTDEM {
 
 		std::vector<Point<double> > points;
 		std::vector<std::size_t> gridCellIndices;
+		std::vector<float> heights;
 
 		PointCloud(const unsigned long width, const unsigned long height) : width(width), height(height) {
 		}

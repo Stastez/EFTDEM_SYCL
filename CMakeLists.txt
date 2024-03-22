@@ -7,6 +7,7 @@ project(${TARGET_NAME} CXX)
 set(CMAKE_CXX_STANDARD 20)
 
 find_package(AdaptiveCpp CONFIG REQUIRED)
+find_package(lodepng CONFIG REQUIRED)
 
 add_compile_definitions("EFTDEM_DEBUG=$<CONFIG:Debug>")
 add_executable(${TARGET_NAME} main.cpp
@@ -20,6 +21,8 @@ add_executable(${TARGET_NAME} main.cpp
         Rasterizer.cpp
         Rasterizer.h
         SYCLState.h
+        PngWriter.cpp
+        PngWriter.h
 )
 
 if (MSVC)
@@ -30,3 +33,4 @@ else ()
 endif ()
 
 add_sycl_to_target(TARGET ${TARGET_NAME})
+target_link_libraries(${TARGET_NAME} PRIVATE lodepng)
