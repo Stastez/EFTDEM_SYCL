@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 find_package(AdaptiveCpp CONFIG REQUIRED)
 
-add_compile_definitions("DEBUG=$<CONFIG:Debug>")
+add_compile_definitions("EFTDEM_DEBUG=$<CONFIG:Debug>")
 add_executable(${TARGET_NAME} main.cpp
         MobileMappingReader.cpp
         MobileMappingReader.h

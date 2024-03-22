@@ -5,7 +5,7 @@
 #include <iostream>
 
 namespace EFTDEM {
-	void MobileMappingReader::readPointsFromFile(PointCloud &pointCloud, const std::string &path, const bool printOutput) {
+	void MobileMappingReader::readPointsFromFile(PointCloud &pointCloud, const std::string &path) {
 		std::cout << "Reading point cloud at " << path << "...\n";
 
 		std::ifstream file{path, std::ios::in};
@@ -39,7 +39,9 @@ namespace EFTDEM {
 			}
 		}
 
-		if (printOutput) MobileMappingReader::printOutput(pointCloud);
+#if (EFTDEM_DEBUG)
+			MobileMappingReader::printOutput(pointCloud);
+#endif
 	}
 
 	void MobileMappingReader::printOutput(const PointCloud &pointCloud) {

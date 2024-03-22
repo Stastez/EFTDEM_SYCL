@@ -25,13 +25,13 @@ namespace EFTDEM {
 			});
 		});
 
-#if(DEBUG)
-		// TODO: use host_task when available with AdaptiveCpp, temporary solution: call destructor and trigger copy back
-		syclState.gridCellIndicesBuffer = {pointCloud.gridCellIndices};
+#if(EFTDEM_DEBUG)
+				// TODO: use host_task when available with AdaptiveCpp, temporary solution: call destructor and trigger copy back
+				syclState.gridCellIndicesBuffer = {pointCloud.gridCellIndices};
 
-		std::cout << "\nIndices:\n";
-		constexpr std::size_t maximumLines = 25;
-		for (std::size_t i = 0; i < pointCloud.points.size(); i += pointCloud.points.size() / maximumLines) std::cout << "\t" << i << ": " << pointCloud.gridCellIndices[i] << "\n";
+				std::cout << "\nIndices:\n";
+				constexpr std::size_t maximumLines = 25;
+				for (std::size_t i = 0; i < pointCloud.points.size(); i += pointCloud.points.size() / maximumLines) std::cout << "\t" << i << ": " << pointCloud.gridCellIndices[i] << "\n";
 #endif
 	}
 } // EFTDEM

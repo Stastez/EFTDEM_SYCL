@@ -16,7 +16,7 @@ int main(const int argc, const char *argv[]) {
 
 	EFTDEM::PointCloud pointCloud{std::stoul(argv[2]), std::stoul(argv[3])};
 
-	EFTDEM::MobileMappingReader::readPointsFromFile(pointCloud, argv[1], true);
+	EFTDEM::MobileMappingReader::readPointsFromFile(pointCloud, argv[1]);
 
 	pointCloud.gridCellIndices = std::vector<std::size_t>(pointCloud.points.size(), 0);
 
