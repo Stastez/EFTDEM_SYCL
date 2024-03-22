@@ -30,6 +30,8 @@ int main(const int argc, const char *argv[]) {
 	pointCloud.gridCellIndices = std::vector<std::size_t>(pointCloud.points.size(), 0);
 	pointCloud.heights = std::vector<float>(pointCloud.width * pointCloud.height, 0);
 
+	const auto startTime = std::chrono::high_resolution_clock::now();
+
 	// Trigger write back to host on buffer destruction
 	{
 		EFTDEM::SYCLState syclState{
@@ -44,6 +46,10 @@ int main(const int argc, const char *argv[]) {
 
 		EFTDEM::Rasterizer::rasterizePointCloud(pointCloud, syclState, debug);
 	}
+
+	const auto endTime = std::chrono::high_resolution_clock::now();
+
+	std::cout << "Elapsed time for SYCL operations: " << std::chrono::duration_cast<std::chrono::milliseconds>(endTime - startTime).count() << " ms\n";
 
 	EFTDEM::PngWriter::exportPointCloud(pointCloud, argv[2]);
 
