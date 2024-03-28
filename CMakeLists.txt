@@ -23,6 +23,8 @@ add_executable(${TARGET_NAME} main.cpp
         SYCLState.h
         PngWriter.cpp
         PngWriter.h
+        RadialFiller.cpp
+        RadialFiller.h
 )
 
 if (MSVC)

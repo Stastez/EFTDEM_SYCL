@@ -35,7 +35,7 @@ namespace EFTDEM {
 			const sycl::accessor pointCounts{pointCountsBuffer, handler, sycl::read_only};
 
 			handler.parallel_for(sycl::range<2>{pointCloud.width, pointCloud.height}, [=](const sycl::item<2> &item) {
-				heights[item.get_id()] /= static_cast<float>(pointCounts[item.get_linear_id()]);
+				heights[item.get_id()] /= static_cast<float>(sycl::max(pointCounts[item.get_linear_id()], 1ul));
 			});
 		});
 
@@ -46,7 +46,7 @@ namespace EFTDEM {
 		const sycl::host_accessor heights{syclState.heightsBuffer};
 
 		std::cout << "\nHeights:\n";
-		for (std::size_t i = 0; i < pointCloud.heights.size(); i += pointCloud.heights.size() / approximateNumLines) std::cout << "\t" << i << ": " << heights[{i % pointCloud.width, i / pointCloud.width}] << "\n";
+		for (std::size_t i = 0; i < pointCloud.heights.size(); i += pointCloud.heights.size() / approximateNumLines) std::cout << "\t" << i << ": " << heights[{i / pointCloud.width, i % pointCloud.width}] << "\n";
 		std::cout << "\t[...]\n\n";
 	}
 } // EFTDEM

@@ -3,6 +3,7 @@
 
 #include "MobileMappingReader.h"
 #include "PngWriter.h"
+#include "RadialFiller.h"
 #include "Rasterizer.h"
 #include "Sorter.h"
 #include "SYCLState.h"
@@ -45,6 +46,8 @@ int main(const int argc, const char *argv[]) {
 		EFTDEM::Sorter::sortPointCloud(pointCloud, syclState, debug);
 
 		EFTDEM::Rasterizer::rasterizePointCloud(pointCloud, syclState, debug);
+
+		EFTDEM::RadialFiller::fill(pointCloud, syclState, 50, debug);
 	}
 
 	const auto endTime = std::chrono::high_resolution_clock::now();
