@@ -35,10 +35,10 @@ int main(const int argc, const char *argv[]) {
 	// Trigger write back to host on buffer destruction
 	{
 		EFTDEM::SYCLState syclState{
-			sycl::queue{sycl::gpu_selector_v},
+			sycl::queue{sycl::gpu_selector_v, sycl::property::queue::in_order{}},
 			{pointCloud.points},
 			{pointCloud.gridCellIndices},
-			{pointCloud.heights}
+			{pointCloud.heights.data(), sycl::range<2>{pointCloud.width, pointCloud.height}}
 		};
 		std::cout << "Selected " << syclState.queue.get_device().get_info<sycl::info::device::name>() << " as the SYCL device.\n";
 

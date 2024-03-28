@@ -10,6 +10,6 @@ namespace EFTDEM {
 		sycl::queue queue;
 		sycl::buffer<Point<double> > pointsBuffer;
 		sycl::buffer<std::size_t> gridCellIndicesBuffer;
-		sycl::buffer<float> heightsBuffer;
+		sycl::buffer<float, 2> heightsBuffer;
 	};
 }

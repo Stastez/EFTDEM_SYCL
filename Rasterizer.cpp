@@ -9,7 +9,7 @@ namespace EFTDEM {
 		sycl::buffer<std::size_t> pointCountsBuffer{sycl::range<1>{pointCloud.heights.size()}};
 
 		syclState.queue.submit([&](sycl::handler &handler) {
-			const sycl::accessor pointCounts{pointCountsBuffer, handler, sycl::read_write, sycl::no_init};
+			const sycl::accessor pointCounts{pointCountsBuffer, handler, sycl::write_only, sycl::no_init};
 
 			handler.fill(pointCounts, 0ul);
 		});
@@ -23,7 +23,9 @@ namespace EFTDEM {
 			handler.parallel_for(pointCloud.points.size(), [=](const sycl::id<1> id) {
 				const auto normalizedHeight = static_cast<float>((points[id].z - mins.z) / (maxs.z - mins.z));
 
-				sycl::atomic_ref<float, sycl::memory_order_relaxed, sycl::memory_scope_device>{heights[indices[id]]} += normalizedHeight;
+				const auto index = indices[id];
+				const auto twoDimensionalId = sycl::id<2>{index / width, index % width};
+				sycl::atomic_ref<float, sycl::memory_order_relaxed, sycl::memory_scope_device>{heights[twoDimensionalId]} += normalizedHeight;
 				++sycl::atomic_ref<unsigned long, sycl::memory_order_relaxed, sycl::memory_scope_device>{pointCounts[indices[id]]};
 			});
 		});
@@ -32,8 +34,8 @@ namespace EFTDEM {
 			const sycl::accessor heights{syclState.heightsBuffer, handler, sycl::read_write};
 			const sycl::accessor pointCounts{pointCountsBuffer, handler, sycl::read_only};
 
-			handler.parallel_for(pointCloud.heights.size(), [=](const sycl::id<1> id) {
-				heights[id] /= static_cast<float>(pointCounts[id]);
+			handler.parallel_for(sycl::range<2>{pointCloud.width, pointCloud.height}, [=](const sycl::item<2> &item) {
+				heights[item.get_id()] /= static_cast<float>(pointCounts[item.get_linear_id()]);
 			});
 		});
 
@@ -44,7 +46,7 @@ namespace EFTDEM {
 		const sycl::host_accessor heights{syclState.heightsBuffer};
 
 		std::cout << "\nHeights:\n";
-		for (std::size_t i = 0; i < pointCloud.heights.size(); i += pointCloud.heights.size() / approximateNumLines) std::cout << "\t" << i << ": " << heights[i] << "\n";
+		for (std::size_t i = 0; i < pointCloud.heights.size(); i += pointCloud.heights.size() / approximateNumLines) std::cout << "\t" << i << ": " << heights[{i % pointCloud.width, i / pointCloud.width}] << "\n";
 		std::cout << "\t[...]\n\n";
 	}
 } // EFTDEM
