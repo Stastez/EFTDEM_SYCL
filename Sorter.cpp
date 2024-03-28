@@ -4,11 +4,11 @@ namespace EFTDEM {
 	void Sorter::sortPointCloud(PointCloud &pointCloud, SYCLState &syclState, const int debug) {
 		std::cout << "Sorting point cloud into a " << pointCloud.width << "x" << pointCloud.height << " grid...\n";
 
-		const auto [width, height, mins, maxs, ignore1, ignore2, ignore3] = pointCloud;
+		const auto [width, height, mins, maxs, ignore1, ignore2] = pointCloud;
 
 		syclState.queue.submit([&](sycl::handler &handler) {
-			const sycl::accessor points{syclState.pointsBuffer, handler, sycl::read_only};
-			const sycl::accessor indices{syclState.gridCellIndicesBuffer, handler, sycl::write_only};
+			const sycl::accessor points{syclState.pointsBuffer, handler, sycl::read_only, sycl::no_init};
+			const sycl::accessor indices{syclState.gridCellIndicesBuffer, handler, sycl::write_only, sycl::no_init};
 
 			handler.parallel_for(pointCloud.points.size(), [=](const sycl::id<1> id) {
 				const sycl::vec<double, 2> normalizedCoordinates{

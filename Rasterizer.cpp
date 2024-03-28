@@ -4,7 +4,7 @@ namespace EFTDEM {
 	void Rasterizer::rasterizePointCloud(PointCloud &pointCloud, SYCLState &syclState, const int debug) {
 		std::cout << "Rasterizing point cloud...\n";
 
-		const auto [width, height, mins, maxs, ignore1, ignore2, ignore3] = pointCloud;
+		const auto [width, height, mins, maxs, ignore1, ignore2] = pointCloud;
 
 		sycl::buffer<std::size_t> pointCountsBuffer{sycl::range<1>{pointCloud.heights.size()}};
 
@@ -15,10 +15,16 @@ namespace EFTDEM {
 		});
 
 		syclState.queue.submit([&](sycl::handler &handler) {
-			const sycl::accessor points{syclState.pointsBuffer, handler, sycl::read_only};
-			const sycl::accessor indices{syclState.gridCellIndicesBuffer, handler, sycl::read_only};
-			const sycl::accessor heights{syclState.heightsBuffer, handler, sycl::read_write};
-			const sycl::accessor pointCounts{pointCountsBuffer, handler, sycl::read_write};
+			const sycl::accessor heights{syclState.heightsBuffer, handler, sycl::write_only, sycl::no_init};
+
+			handler.fill(heights, 0.f);
+		});
+
+		syclState.queue.submit([&](sycl::handler &handler) {
+			const sycl::accessor points{syclState.pointsBuffer, handler, sycl::read_only, sycl::no_init};
+			const sycl::accessor indices{syclState.gridCellIndicesBuffer, handler, sycl::read_only, sycl::no_init};
+			const sycl::accessor heights{syclState.heightsBuffer, handler, sycl::read_write, sycl::no_init};
+			const sycl::accessor pointCounts{pointCountsBuffer, handler, sycl::read_write, sycl::no_init};
 
 			handler.parallel_for(pointCloud.points.size(), [=](const sycl::id<1> id) {
 				const auto normalizedHeight = static_cast<float>((points[id].z - mins.z) / (maxs.z - mins.z));
@@ -31,13 +37,17 @@ namespace EFTDEM {
 		});
 
 		syclState.queue.submit([&](sycl::handler &handler) {
-			const sycl::accessor heights{syclState.heightsBuffer, handler, sycl::read_write};
-			const sycl::accessor pointCounts{pointCountsBuffer, handler, sycl::read_only};
+			const sycl::accessor heights{syclState.heightsBuffer, handler, sycl::read_write, sycl::no_init};
+			const sycl::accessor pointCounts{pointCountsBuffer, handler, sycl::read_only, sycl::no_init};
 
 			handler.parallel_for(sycl::range<2>{pointCloud.width, pointCloud.height}, [=](const sycl::item<2> &item) {
 				heights[item.get_id()] /= static_cast<float>(sycl::max(pointCounts[item.get_linear_id()], 1ul));
 			});
 		});
+
+		// Buffers no longer required, call destructor
+		syclState.pointsBuffer = {sycl::range<1>{0}};
+		syclState.gridCellIndicesBuffer = {sycl::range<1>{0}};
 
 		if (debug) printOutput(pointCloud, syclState, debug);
 	}

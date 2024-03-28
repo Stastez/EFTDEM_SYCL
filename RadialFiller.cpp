@@ -7,18 +7,12 @@ namespace EFTDEM {
 
 		sycl::buffer<float, 2> heightsCopyBuffer{sycl::range<2>{pointCloud.width, pointCloud.height}};
 
-		syclState.queue.submit([&](sycl::handler &handler) {
-			const sycl::accessor heightsCopy{heightsCopyBuffer, handler, sycl::write_only, sycl::no_init};
-
-			handler.fill(heightsCopy, -1.f);
-		});
-
 		for (auto i = 0u; i < numSteps; ++i) {
 			syclState.queue.submit([&](sycl::handler &handler) {
 				const bool evenIteration = !(i % 2);
 
-				const sycl::accessor<float, 2> source{evenIteration ? syclState.heightsBuffer : heightsCopyBuffer, handler, sycl::read_only};
-				const sycl::accessor<float, 2> destination{evenIteration ? heightsCopyBuffer : syclState.heightsBuffer, handler, sycl::write_only};
+				const sycl::accessor<float, 2> source{evenIteration ? syclState.heightsBuffer : heightsCopyBuffer, handler, sycl::read_only, sycl::no_init};
+				const sycl::accessor<float, 2> destination{evenIteration ? heightsCopyBuffer : syclState.heightsBuffer, handler, sycl::write_only, sycl::no_init};
 
 				handler.parallel_for(sycl::range<2>{pointCloud.width, pointCloud.height}, [=](const sycl::item<2> &item) {
 					auto accumulator = 0.f;

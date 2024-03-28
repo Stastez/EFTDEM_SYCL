@@ -28,7 +28,6 @@ int main(const int argc, const char *argv[]) {
 
 	EFTDEM::MobileMappingReader::readPointsFromFile(pointCloud, argv[1], debug);
 
-	pointCloud.gridCellIndices = std::vector<std::size_t>(pointCloud.points.size(), 0);
 	pointCloud.heights = std::vector<float>(pointCloud.width * pointCloud.height, 0);
 
 	const auto startTime = std::chrono::high_resolution_clock::now();
@@ -38,9 +37,11 @@ int main(const int argc, const char *argv[]) {
 		EFTDEM::SYCLState syclState{
 			sycl::queue{sycl::gpu_selector_v, sycl::property::queue::in_order{}},
 			{pointCloud.points},
-			{pointCloud.gridCellIndices},
+			{sycl::range<1>{pointCloud.points.size()}},
+			// This does not initialize heightsBuffer with the values in heights
 			{pointCloud.heights.data(), sycl::range<2>{pointCloud.width, pointCloud.height}}
 		};
+		syclState.pointsBuffer.set_write_back(false);
 		std::cout << "Selected " << syclState.queue.get_device().get_info<sycl::info::device::name>() << " as the SYCL device.\n";
 
 		EFTDEM::Sorter::sortPointCloud(pointCloud, syclState, debug);
