@@ -25,6 +25,8 @@ add_executable(${TARGET_NAME} main.cpp
         PngWriter.h
         RadialFiller.cpp
         RadialFiller.h
+        ConfigReader.cpp
+        ConfigReader.h
 )
 
 if (MSVC)
