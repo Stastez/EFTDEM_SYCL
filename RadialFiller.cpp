@@ -5,7 +5,7 @@ namespace EFTDEM {
 	void RadialFiller::fill(const PointCloud &pointCloud, SYCLState &syclState, const unsigned numSteps, const int debug) {
 		std::cout << "Filling point cloud " << numSteps << " times...\n";
 
-		sycl::buffer<float, 2> heightsCopyBuffer{sycl::range<2>{pointCloud.width, pointCloud.height}};
+		sycl::buffer<float, 2> heightsCopyBuffer{sycl::range<2>{pointCloud.height, pointCloud.width}};
 
 		for (auto i = 0u; i < numSteps; ++i) {
 			syclState.queue.submit([&](sycl::handler &handler) {
@@ -14,7 +14,7 @@ namespace EFTDEM {
 				const sycl::accessor<float, 2> source{evenIteration ? syclState.heightsBuffer : heightsCopyBuffer, handler, sycl::read_only, sycl::no_init};
 				const sycl::accessor<float, 2> destination{evenIteration ? heightsCopyBuffer : syclState.heightsBuffer, handler, sycl::write_only, sycl::no_init};
 
-				handler.parallel_for(sycl::range<2>{pointCloud.width, pointCloud.height}, [=](const sycl::item<2> &item) {
+				handler.parallel_for(sycl::range<2>{pointCloud.height, pointCloud.width}, [=](const sycl::item<2> &item) {
 					auto accumulator = 0.f;
 					auto numNonZero = 0.f;
 					const auto id = item.get_id();
