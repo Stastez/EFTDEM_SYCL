@@ -8,8 +8,8 @@ namespace EFTDEM {
 	class SYCLState {
 	public:
 		sycl::queue queue;
-		sycl::buffer<Point<double> > pointsBuffer;
-		sycl::buffer<std::size_t> gridCellIndicesBuffer;
-		sycl::buffer<float, 2> heightsBuffer;
+		std::optional<sycl::buffer<Point<double>>> pointsBuffer;
+		std::optional<sycl::buffer<std::size_t>> gridCellIndicesBuffer;
+		std::optional<sycl::buffer<float, 2>> heightsBuffer;
 	};
 }

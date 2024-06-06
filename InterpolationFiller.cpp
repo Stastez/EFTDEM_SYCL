@@ -8,7 +8,7 @@ namespace EFTDEM {
 		sycl::buffer<float, 2> heightsCopyBuffer{sycl::range<2>{pointCloud.height, pointCloud.width}};
 
 		syclState.queue.submit([&](sycl::handler &handler) {
-			const sycl::accessor<float, 2> source{syclState.heightsBuffer, handler, sycl::read_only, sycl::no_init};
+			const sycl::accessor<float, 2> source{syclState.heightsBuffer.value(), handler, sycl::read_only, sycl::no_init};
 			const sycl::accessor<float, 2> destination{heightsCopyBuffer, handler, sycl::write_only, sycl::no_init};
 
 			handler.parallel_for(sycl::range<2>{pointCloud.height, pointCloud.width}, [=](const sycl::item<2> &item) {
@@ -34,7 +34,7 @@ namespace EFTDEM {
 
 		syclState.queue.submit([&](sycl::handler &handler) {
 			const sycl::accessor<float, 2> source{heightsCopyBuffer, handler, sycl::read_only};
-			const sycl::accessor<float, 2> destination{syclState.heightsBuffer, handler, sycl::write_only};
+			const sycl::accessor<float, 2> destination{syclState.heightsBuffer.value(), handler, sycl::write_only};
 
 			handler.copy(source, destination);
 		});
@@ -43,7 +43,7 @@ namespace EFTDEM {
 	}
 
 	void InterpolationFiller::printOutput(const PointCloud &pointCloud, SYCLState &syclState, const int approximateNumLines) {
-		const sycl::host_accessor heights{syclState.heightsBuffer};
+		const sycl::host_accessor heights{syclState.heightsBuffer.value()};
 
 		std::cout << "\nHeights:\n";
 		for (std::size_t i = 0; i < pointCloud.heights.size(); i += pointCloud.heights.size() / approximateNumLines) std::cout << "\t" << i << ": " << heights[{i / pointCloud.width, i % pointCloud.width}] << "\n";

@@ -4,6 +4,8 @@ namespace EFTDEM {
 	void Rasterizer::rasterizePointCloud(PointCloud &pointCloud, SYCLState &syclState, const int debug) {
 		std::cout << "Rasterizing point cloud...\n";
 
+		syclState.heightsBuffer = {pointCloud.heights.data(), sycl::range<2>{pointCloud.height, pointCloud.width}};
+
 		const auto [width, height, mins, maxs, ignore1, ignore2] = pointCloud;
 
 		sycl::buffer<std::size_t> pointCountsBuffer{sycl::range<1>{pointCloud.heights.size()}};
@@ -15,15 +17,15 @@ namespace EFTDEM {
 		});
 
 		syclState.queue.submit([&](sycl::handler &handler) {
-			const sycl::accessor heights{syclState.heightsBuffer, handler, sycl::write_only, sycl::no_init};
+			const sycl::accessor heights{syclState.heightsBuffer.value(), handler, sycl::write_only, sycl::no_init};
 
 			handler.fill(heights, 0.f);
 		});
 
 		syclState.queue.submit([&](sycl::handler &handler) {
-			const sycl::accessor points{syclState.pointsBuffer, handler, sycl::read_only, sycl::no_init};
-			const sycl::accessor indices{syclState.gridCellIndicesBuffer, handler, sycl::read_only, sycl::no_init};
-			const sycl::accessor heights{syclState.heightsBuffer, handler, sycl::read_write, sycl::no_init};
+			const sycl::accessor points{syclState.pointsBuffer.value(), handler, sycl::read_only, sycl::no_init};
+			const sycl::accessor indices{syclState.gridCellIndicesBuffer.value(), handler, sycl::read_only, sycl::no_init};
+			const sycl::accessor heights{syclState.heightsBuffer.value(), handler, sycl::read_write, sycl::no_init};
 			const sycl::accessor pointCounts{pointCountsBuffer, handler, sycl::read_write, sycl::no_init};
 
 			handler.parallel_for(pointCloud.points.size(), [=](const sycl::id<1> id) {
@@ -37,7 +39,7 @@ namespace EFTDEM {
 		});
 
 		syclState.queue.submit([&](sycl::handler &handler) {
-			const sycl::accessor heights{syclState.heightsBuffer, handler, sycl::read_write, sycl::no_init};
+			const sycl::accessor heights{syclState.heightsBuffer.value(), handler, sycl::read_write, sycl::no_init};
 			const sycl::accessor pointCounts{pointCountsBuffer, handler, sycl::read_only, sycl::no_init};
 
 			handler.parallel_for(sycl::range<2>{pointCloud.height, pointCloud.width}, [=](const sycl::item<2> &item) {
@@ -46,14 +48,14 @@ namespace EFTDEM {
 		});
 
 		// Buffers no longer required, call destructor
-		syclState.pointsBuffer = {sycl::range<1>{0}};
-		syclState.gridCellIndicesBuffer = {sycl::range<1>{0}};
+		syclState.pointsBuffer = std::nullopt;
+		syclState.gridCellIndicesBuffer = std::nullopt;
 
 		if (debug) printOutput(pointCloud, syclState, debug);
 	}
 
 	void Rasterizer::printOutput(const PointCloud &pointCloud, SYCLState &syclState, const int approximateNumLines) {
-		const sycl::host_accessor heights{syclState.heightsBuffer};
+		const sycl::host_accessor heights{syclState.heightsBuffer.value()};
 
 		std::cout << "\nHeights:\n";
 		for (std::size_t i = 0; i < pointCloud.heights.size(); i += pointCloud.heights.size() / approximateNumLines) std::cout << "\t" << i << ": " << heights[{i / pointCloud.width, i % pointCloud.width}] << "\n";

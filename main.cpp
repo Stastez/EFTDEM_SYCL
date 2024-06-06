@@ -38,12 +38,10 @@ int main(const int argc, const char *argv[]) {
 
 		EFTDEM::SYCLState syclState{
 			queue,
-			{pointCloud.points},
-			{sycl::range<1>{pointCloud.points.size()}},
-			// This does not initialize heightsBuffer with the values in heights
-			{pointCloud.heights.data(), sycl::range<2>{pointCloud.height, pointCloud.width}}
+			std::nullopt,
+			std::nullopt,
+			std::nullopt
 		};
-		syclState.pointsBuffer.set_write_back(false);
 		std::cout << "Selected " << syclState.queue.get_device().get_info<sycl::info::device::name>() << " as the SYCL device.\n";
 
 		EFTDEM::Sorter::sortPointCloud(pointCloud, syclState, debug);
