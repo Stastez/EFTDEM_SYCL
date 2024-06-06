@@ -3,7 +3,7 @@
 
 namespace EFTDEM {
 	void RadialFiller::fill(const PointCloud &pointCloud, SYCLState &syclState, const unsigned numSteps, const int debug) {
-		std::cout << "Filling point cloud " << numSteps << " times...\n";
+		std::cout << "Filling point cloud " << numSteps << " times using radial filling...\n";
 
 		sycl::buffer<float, 2> heightsCopyBuffer{sycl::range<2>{pointCloud.height, pointCloud.width}};
 

@@ -27,6 +27,8 @@ add_executable(${TARGET_NAME} main.cpp
         RadialFiller.h
         ConfigReader.cpp
         ConfigReader.h
+        InterpolationFiller.cpp
+        InterpolationFiller.h
 )
 
 if (MSVC)

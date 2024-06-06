@@ -2,6 +2,7 @@
 #include <sycl/sycl.hpp>
 
 #include "ConfigReader.h"
+#include "InterpolationFiller.h"
 #include "MobileMappingReader.h"
 #include "PngWriter.h"
 #include "RadialFiller.h"
@@ -50,6 +51,7 @@ int main(const int argc, const char *argv[]) {
 		EFTDEM::Rasterizer::rasterizePointCloud(pointCloud, syclState, debug);
 
 		EFTDEM::RadialFiller::fill(pointCloud, syclState, config.numClosingIterations, debug);
+		//EFTDEM::InterpolationFiller::fill(pointCloud, syclState, config.numClosingIterations, debug);
 	}
 
 	const auto endTime = std::chrono::high_resolution_clock::now();
